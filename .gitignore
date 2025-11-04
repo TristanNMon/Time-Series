@@ -1,0 +1,8 @@
+# Ignore everything that starts with "main."
+main.*
+
+# But keep the TeX and PDF versions
+!main.tex
+!main.pdf
+
+HW1-notebook.ipynb

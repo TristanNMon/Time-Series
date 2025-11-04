@@ -72,10 +72,52 @@ Show that
 \end{exercise}
 
 \begin{solution}  % ANSWER HERE
+We fix all the dictionary atoms $\mathbf{d}_k \in \mathbb{R}^{L}$ for $k = 1, \dots, K$,
+and we note that $M = N - L + 1$ is the valid convolution length. 
 
-\begin{equation}
-    \lambda_{\max} = \dots
-\end{equation}
+For a given pair $(\mathbf{z}_k, \mathbf{d}_k)$, the valid convolution 
+$\mathbf{z}_k * \mathbf{d}_k \in \mathbb{R}^{N}$ can be written componentwise as
+\[
+(\mathbf{z}_k * \mathbf{d}_k)[n] = \sum_{i=0}^{M-1} z_k[i]\, d_k[n - i],
+\quad \text{where } d_k[n - i] = 0 \text{ if } n - i < 0 \text{ or } n - i > L - 1.
+\]
+
+This operation can be expressed as a matrix–vector product
+\[
+\mathbf{y}_k = \mathbf{D}_k \mathbf{z}_k,
+\]
+where $\mathbf{D}_k \in \mathbb{R}^{N \times M}$ has coefficients
+\[
+\mathbf{D}_k[n, i] =
+\begin{cases}
+d_k[n - i], & \text{if } 0 \le n - i < L, \\[6pt]
+0, & \text{otherwise.}
+\end{cases}
+\]
+
+We define:
+\[
+\mathbf{z} =
+\begin{bmatrix}
+\mathbf{z}_1 \\ \vdots \\ \mathbf{z}_K
+\end{bmatrix} \in \mathbb{R}^{K \cdot M},
+\qquad
+\mathbf{D} =
+\begin{bmatrix}
+\mathbf{D}_1 & \mathbf{D}_2 & \cdots & \mathbf{D}_K
+\end{bmatrix} \in \mathbb{R}^{N \times K \cdot M}.
+\]
+
+Hence we can then rewrite the sparse coding problem given the $(\mathbf{d}_k)$ in the LASSO form, with 
+response vector $\mathbf{x} \in \mathbb{R}^{N}$, design matrix $\mathbf{D}$ and regressor vector $\mathbf{z}$:
+\[
+\min_{\mathbf{z} \in \mathbb{R}^{K \cdot M}} \;
+\left\| \mathbf{x} - \mathbf{D} \mathbf{z} \right\|_2^2
+\;+\;
+\lambda \|\mathbf{z}\|_1.
+\]
+
+
 
 \end{solution}
 
@@ -143,7 +185,48 @@ The \textit{periodogram} is the collection of values $|J(f_0)|^2$, $|J(f_1)|^2$,
 \end{exercise}
 
 \begin{solution}
-    
+\[
+|J(f_k)|^2 = J(f_k) \overline{J(f_k)} 
+= (1/N) \sum_{n=0}^{N-1} \sum_{m=0}^{N-1} X_n X_m e^{-2\pi\iu f_k (n - m)/f_s}
+\]
+
+Do the change of variable $\tau = m - n \in [-(N-1), N-1]$.
+\[
+|J(f_k)|^2 = \frac{1}{N} \sum_{\tau=-(N-1)}^{N-1} 
+    e^{-2\pi \mathrm{i} f_k \tau / f_s}
+    \sum_{n=0}^{N-1 - |\tau|} X_n X_{n + |\tau|} \\[4pt]
+\]
+
+\[
+|J(f_k)|^2= \sum_{\tau=-(N-1)}^{N-1} 
+    \hat{\gamma}(\tau)\, e^{-2\pi \mathrm{i} f_k \tau / f_s}.
+\]
+
+For a frequency $f$, let $f^{(N)}$ be the closest Fourier frequency to $f$,
+with $k_n = \lfloor N f / f_s \rfloor$.
+
+\[
+\mathbb{E}[|J(f^{(N)})|^2]
+= \sum_{\tau=-(N-1)}^{N-1} 
+    \mathbb{E}[\hat{\gamma}(\tau)]\, e^{-2\pi \mathrm{i} f^{(N)} \tau / f_s}
+\]
+
+\[
+\mathbb{E}[|J(f^{(N)})|^2]
+= \frac{N-|\tau|}{N} \sum_{\tau=-(N-1)}^{N-1} 
+     \gamma(\tau)\, e^{-2\pi \mathrm{i} f^{(N)} \tau / f_s}
+\]
+
+TODO We assume the summability of the autocovariances and their square is sufficient
+to take the limit of $N$ in the whole expression, to have
+
+\[
+\mathbb{E}[|J(f^{(N)})|^2] \rightarrow \sum_{\tau=-\infty}^{+\infty} 
+     \gamma(\tau)\, e^{-2\pi \mathrm{i} f \tau / f_s}
+= S(f).
+\]
+
+
 \end{solution}
 
 \begin{exercise}\label{ex:wn-exp}
@@ -161,28 +244,28 @@ The \textit{periodogram} is the collection of values $|J(f_0)|^2$, $|J(f_1)|^2$,
 \begin{figure}
     \centering
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/acov_white_noise_N200_fs1.0_sim100.png}}
     \centerline{Autocovariance ($N=200$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/acov_white_noise_N500_fs1.0_sim100.png}}
     \centerline{Autocovariance ($N=500$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/acov_white_noise_N1000_fs1.0_sim100.png}}
     \centerline{Autocovariance ($N=1000$)}
     \end{minipage}
     \vskip1em
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/periodogram_white_noise_N200_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=200$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/periodogram_white_noise_N500_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=500$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/periodogram_white_noise_N1000_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=1000$)}
     \end{minipage}
     \vskip1em
@@ -193,7 +276,31 @@ The \textit{periodogram} is the collection of values $|J(f_0)|^2$, $|J(f_1)|^2$,
 \end{exercise}
 
 \begin{solution}
-    
+    \begin{itemize}
+        \item The theoretical autocovariance of white noise is $\sigma^2$ at lag=0 and 0 everywhere else. 
+        Here the sample autocovariance has the peak of 1 at lag=0 and abruptly decreases to low fluctuations around 0 with standard deviation of ~0.1 for N=200.
+        The standard deviation slowly decreases with the number of lags. That is coherent with the expression of the variance derived below. With bigger N, the standard deviation is lower for all lags, around 0.02 for N=500 at low lag.
+        \item Theoretically, the periodogram of gaussian white noise is flat and equal to $\sigma^2/f_s = 1$ at all frequencies.
+        Here we have a mean around 1 and a standard deviation of 1 too (we rescaled the autocovariances by 0.5 after computing the onesided periodogram)
+        The standard deviation does not decrease with N.
+    \end{itemize}
+Expression of variance:
+\[
+\mathrm{var}\big(\hat{\gamma}(\tau)\big)
+= \frac{1}{N^2}\sum_{n=0}^{N-1-\tau} \mathrm{var}(X_n X_{n+\tau})
+= \frac{N-\tau}{N^2}\,\mathbb{E}[X_0^2 X_{0+\tau}^2] = \frac{N-\tau}{N^2}\,\sigma^4.
+\]
+
+Therefore,
+\[
+\mathrm{std}\big(\hat{\gamma}(\tau)\big)
+= \sigma^2 \sqrt{\frac{1-\tau/N}{N}}.
+\]
+which decreases to \(0\) as \(\tau \rightarrow N\).
+
+ 
+
+
 \end{solution}
 
 \begin{exercise}
@@ -217,7 +324,7 @@ Contrary to the correlogram, the periodogram is not consistent.
 It is one of the most well-known estimators that is asymptotically unbiased but not consistent.
 In the following question, this is proven for Gaussian white noise, but this holds for more general stationary processes.
 \begin{exercise}
-    Assume that $X$ is a Gaussian white noise (variance $\sigma^2$) and let $A(f):=\sum_{n=0}^{N-1} X_n \cos(-2\pi f n/f_s$ and $B(f):=\sum_{n=0}^{N-1} X_n \sin(-2\pi f n/f_s$.
+    Assume that $X$ is a Gaussian white noise (variance $\sigma^2$) and let $A(f):=\sum_{n=0}^{N-1} X_n \cos(-2\pi f n/f_s)$ and $B(f):=\sum_{n=0}^{N-1} X_n \sin(-2\pi f n/f_s$.
     Observe that $J(f) = (1/N) (A(f) + \iu B(f))$.
     \begin{itemize}
         \item Derive the mean and variance of $A(f)$ and $B(f)$ for $f=f_0, f_1,\dots, f_{N/2}$ where $f_k=f_s k/N$.
@@ -225,12 +332,133 @@ In the following question, this is proven for Gaussian white noise, but this hol
         \item What is the variance of the $|J(f_k)|^2$? Conclude that the periodogram is not consistent.
         \item Explain the erratic behavior of the periodogram in Question~\ref{ex:wn-exp} by looking at the covariance between the $|J(f_k)|^2$.
     \end{itemize}
-    
 \end{exercise}
 
 \begin{solution}
-    
+
+1) $A(f)$ and $B(f)$ are linear combinations of centered independent Gaussian variables, hence
+they are also centered Gaussian:
+\[
+\mathbb{E}[A(f)] = 0, \quad \mathbb{E}[B(f)] = 0.
+\]
+
+For the variance, by bilinearity of covariances:
+\begin{align*}
+\mathrm{var}\big(A(f)\big) 
+&= \mathrm{cov}\!\left( 
+    \sum_{n=0}^{N-1} X_n \cos(2\pi f n/f_s),
+    \sum_{m=0}^{N-1} X_m \cos(2\pi f m/f_s)
+\right) \\
+&= \sum_{n=0}^{N-1} \sum_{m=0}^{N-1} 
+    \mathrm{cov}(X_n, X_m)\,
+    \cos(2\pi f n/f_s)
+    \cos(2\pi f m/f_s) \\
+&= \sigma^2 \sum_{n=0}^{N-1} 
+    \cos^2(2\pi f n/f_s).
+\end{align*}
+
+For $k \in \{1, \ldots, N/2-1\}$, we have:
+\begin{align*}
+\mathrm{var}\big(A(f_k)\big) 
+&= \sigma^2 \sum_{n=0}^{N-1} 
+    \cos^2\!\left(\frac{2\pi k n}{N/f_s}\right) \\
+&= \sigma^2 \sum_{n=0}^{N-1} 
+    \frac{1}{2}\left(1 - \cos\!\left(\frac{4\pi k n}{N/f_s}\right)\right) \\
+&= \frac{N\sigma^2}{2}.
+\end{align*}
+
+The same result holds for $B(f_k)$.
+
+For $k = 0$ or $k = N/2$, we have $\cos^2(2\pi k n/(N/f_s)) = 1$ and $\sin^2(2\pi k n/(N/f_s)) = 0$, so:
+\[
+\mathrm{var}\big(A(f_0)\big) = \mathrm{var}\big(A(f_{N/2})\big) = N\sigma^2, 
+\quad \mathrm{var}\big(B(f_0)\big) = \mathrm{var}\big(B(f_{N/2})\big) = 0.
+\]
+
+To sum up:
+\[
+\operatorname{Var}[A(f_k)] =
+\begin{cases}
+    N\sigma^2, & \text{if } k = 0 \text{ or } k = N/2, \\[6pt]
+    (N/2)\sigma^2, & \text{if } 0 < k < N/2,
+\end{cases}
+\qquad
+\operatorname{Var}[B(f_k)] =
+\begin{cases}
+    0, & \text{if } k = 0 \text{ or } k = N/2, \\[6pt]
+    (N/2)\sigma^2, & \text{if } 0 < k < N/2.
+\end{cases}
+\]
+
+---
+
+2) The periodogram writes:
+\[
+|J(f_k)|^2 = \frac{1}{N} \big(A(f_k)^2 + B(f_k)^2\big).
+\]
+
+For $0 < k < N/2$:
+\begin{align*}
+|J(f_k)|^2
+    &= \frac{1}{N} \left((N/2)\sigma^2 Z_A^2 + (N/2)\sigma^2 Z_B^2\right) \\
+    &= \frac{\sigma^2}{2} (Z_A^2 + Z_B^2),
+\end{align*}
+where $Z_A, Z_B \sim \mathcal{N}(0, 1)$ are independent, since their covariance is zero (using trigonometric orthogonality):
+\begin{align*}
+\mathrm{cov}(A(f_k), B(f_k)) 
+&= \sum_{n=0}^{N-1} \sum_{m=0}^{N-1} 
+    \mathrm{cov}(X_n, X_m)\,
+    \cos(2\pi f_k n/f_s)
+    \sin(2\pi f_k m/f_s) \\
+&= \sigma^2 \sum_{n=0}^{N-1}
+    \frac{1}{2}\sin(4\pi f_k n/f_s) = 0.
+\end{align*}
+
+Hence
+\[
+|J(f_k)|^2 = \frac{\sigma^2}{2}(Z_A^2 + Z_B^2)
+    \sim \frac{\sigma^2}{2}\chi^2_2.
+\]
+
+For $k = 0$ or $k = N/2$, we have $B(f_k) = 0$ and 
+$A(f_k) \sim \mathcal{N}(0, N\sigma^2)$, hence
+\[
+|J(f_k)|^2 = \frac{1}{N} A(f_k)^2 \sim \sigma^2 \chi^2_1.
+\]
+
+---
+
+3) For $0 < k < N/2$:
+\begin{align*}
+\operatorname{Var}[|J(f_k)|^2]
+&= \operatorname{Var}\!\left[\frac{\sigma^2}{2}\chi^2_2\right] \\
+&= \frac{\sigma^4}{4} \operatorname{Var}[\chi^2_2] \\
+&= \frac{\sigma^4}{4} \cdot (2 \cdot 2) = \sigma^4.
+\end{align*}
+
+And for $k = 0$ or $k = N/2$:
+\begin{align*}
+\operatorname{Var}[|J(f_k)|^2]
+&= \operatorname{Var}[\sigma^2 \chi^2_1] \\
+&= \sigma^4 \operatorname{Var}[\chi^2_1] \\
+&= \sigma^4 \cdot 2 = 2\sigma^4.
+\end{align*}
+Because the variance is constant and does not converge to 0 with $N$ we 
+believe the periodogram is not consistent, ie does not converge in probability to the true power spectrum.
+We don't provide a rigorous proof here.
+
+4)
+The covariance between two periodogram values at different frequencies $f_k$ and $f_{l}$, with $k \neq l$, is $0$.
+We don't prove it but it is similar calculation as for $A(f_k)$ and $B(f_k)$ not correlated and independent as gaussian,
+but here we take $A^2(f_k)$, $B^2(f_k)$, $A^2(f_l)$ and $B^2(f_l)$.
+Hence the periodogram value at one frequency is completely not correlated with the value at the next frequency.
+It explains the erratic behavior and noisy and spiky look, rather than a smooth curve.
+
+
+
+
 \end{solution}
+
 
 \begin{exercise}\label{q:barlett}
     As seen in the previous question, the problem with the periodogram is the fact that its variance does not decrease with the sample size.
@@ -244,19 +472,23 @@ In the following question, this is proven for Gaussian white noise, but this hol
 \end{exercise}
 
 \begin{solution}
-    
+The Bartlett method to compute periodogram reduces the variance by $1/K$:
+\[\operatorname{Var}[\hat{S}_\text{Bartlett}(f_k)] = \frac{1}{K} \operatorname{Var}[\hat{S}(f_k)]\]
+As the periodograms on the non overlapping sections are independent. 
+Hence it reduces the standard deviation by $1/\sqrt{K} \sim 0.45$, as we see in Figure~\ref{fig:barlett},
+
 \begin{figure}
     \centering
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/bartlett_periodogram_white_noise_N200_K5_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=200$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/bartlett_periodogram_white_noise_N500_K5_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=500$)}
     \end{minipage}
     \begin{minipage}[t]{0.3\textwidth}
-    \centerline{\includegraphics[width=\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=\textwidth]{figures/bartlett_periodogram_white_noise_N1000_K5_fs1.0_sim100.png}}
     \centerline{Periodogram ($N=1000$)}
     \end{minipage}
     \vskip1em
