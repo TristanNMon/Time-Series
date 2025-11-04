@@ -49,6 +49,140 @@ Show that there exists $\lambda_{\max}$ such that the minimizer of~\eqref{eq:las
 
 \begin{solution}  % ANSWER HERE
 
+\subsection*{1. The Primal Problem}
+The Lasso optimization problem is given by:
+\[
+(P) \quad p^* = \min_{\beta \in \mathbb{R}^p} \quad \frac{1}{2}\|y - X\beta\|_2^2 + \lambda \|\beta\|_1
+\]
+This is an unconstrained convex optimization problem.
+
+\subsection*{2. Equivalent Constrained Formulation}
+To find the dual, we first introduce a new variable $z \in \mathbb{R}^n$ to represent the residual. We can rewrite the problem as an equivalent constrained optimization problem:
+\[
+(P') \quad p^* = \min_{\beta \in \mathbb{R}^p, z \in \mathbb{R}^n} \quad \frac{1}{2}\|z\|_2^2 + \lambda \|\beta\|_1
+\]
+\[
+\text{subject to} \quad z + X\beta = y
+\]
+
+\subsection*{3. Strong Duality via Slater's Condition}
+This new problem $(P')$ is a \textbf{convex optimization problem}:
+\begin{itemize}
+    \item The objective function $f_0(\beta, z) = \frac{1}{2}\|z\|_2^2 + \lambda \|\beta\|_1$ is a sum of two convex functions (the squared $L_2$-norm and the $L_1$-norm, with $\lambda > 0$), and is therefore convex.
+    \item The constraint $h(\beta, z) = -z - X\beta + y = 0$ is an \textbf{affine} constraint.
+\end{itemize}
+For a convex optimization problem with only affine constraints, a refinement of \textbf{Slater's condition} states that strong duality holds as long as the problem is feasible.
+
+The problem is clearly feasible; for example, one can choose $\beta = 0_p$ (the $p$-dimensional zero vector) and $z = y$. This satisfies the constraint.
+
+Because strong duality holds, the optimal value of the primal ($p^*$) is equal to the optimal value of the dual ($d^*$), and the KKT conditions are necessary and sufficient for optimality.
+
+\subsection*{4. The Lagrangian and Dual Function}
+We introduce a Lagrange multiplier (dual variable) $\nu \in \mathbb{R}^n$ for the affine constraint. The Lagrangian $L$ is:
+\[
+L(\beta, z, \nu) = (\text{primal objective}) + \nu^T (\text{constraint})
+\]
+\[
+L(\beta, z, \nu) = \frac{1}{2}\|z\|_2^2 + \lambda \|\beta\|_1 + \nu^T (y - X\beta - z)
+\]
+The Lagrange dual function $g(\nu)$ is the infimum of the Lagrangian over the primal variables ($\beta$ and $z$):
+\[
+g(\nu) = \inf_{\beta, z} L(\beta, z, \nu)
+\]
+We can group the terms for $\beta$ and $z$ and minimize them independently:
+\[
+g(\nu) = \inf_{z \in \mathbb{R}^n} \left( \frac{1}{2}\|z\|_2^2 - \nu^T z \right) + \inf_{\beta \in \mathbb{R}^p} \left( \lambda \|\beta\|_1 - \nu^T X\beta \right) + y^T\nu
+\]
+\textbf{Minimization w.r.t. $z$:}
+The function $L_z = \frac{1}{2}\|z\|_2^2 - \nu^T z$ is convex and differentiable. We find the minimum by setting its gradient to zero:
+\[
+\nabla_z L_z = z - \nu = 0 \quad \implies \quad z^* = \nu
+\]
+The minimum value is $L_z(z^*) = \frac{1}{2}\|\nu\|_2^2 - \nu^T\nu = -\frac{1}{2}\|\nu\|_2^2$.
+
+\textbf{Minimization w.r.t. $\beta$:}
+This is the conjugate function of the $L_1$-norm. Let $v = X^T \nu$.
+\[
+\inf_{\beta \in \mathbb{R}^p} \left( \lambda \|\beta\|_1 - \nu^T X\beta \right) = -\sup_{ \beta \in \mathbb{R}^p} \left(  \left(\frac{1}{\lambda}X^T\nu\right)^T\lambda\beta -  \|\lambda\beta\|_1\right)
+\]
+Let's study the conjugate function of $L_1$-norm:
+
+Let $x\in\mathbb{R}^n$. The $\ell_1$ norm is
+\[
+\|x\|_1 := \sum_{i=1}^n |x_i|.
+\]
+For a function $f:\mathbb{R}^n\to\mathbb{R}\cup\{+\infty\}$ the \emph{convex conjugate} (Fenchel conjugate) $f^*$ is defined by
+\[
+f^*(y) := \sup_{x\in\mathbb{R}^n}\{\langle y,x\rangle - f(x)\},\qquad y\in\mathbb{R}^n,
+\]
+where $\langle y,x\rangle = \sum_{i=1}^n y_i x_i$.
+
+We will also use the dual norm fact: if $\|\cdot\|$ is a norm and $\|\cdot\|_*$ denotes its dual norm,
+\[
+\|y\|_* = \sup_{\|x\|\le 1}\langle y,x\rangle,
+\]
+then for the norm $f(x)=\|x\|$ one has
+\[
+f^*(y)=\begin{cases}
+0 & \text{if }\|y\|_\infty\le 1,\\
++\infty & \text{otherwise}
+\end{cases}
+\]
+See apendix to see proof
+
+If we inject our variable we get : 
+
+\[
+\inf_{\beta \in \mathbb{R}^p} \left( \lambda \|\beta\|_1 - \nu^T X\beta \right) = -f^*\left(\frac{X^T\nu}{\lambda}\right)=\begin{cases}
+0 & \text{if }\|{X^T\nu}\|_\infty\le \lambda,\\
+-\infty & \text{otherwise}
+\end{cases}
+\]
+
+\subsection*{5. The Dual Problem}
+The dual problem $(D)$ is to maximize $g(\nu)$. We can write this as a minimization problem by flipping the sign, which is a common convention:
+\[
+(D) \quad d^* = \max_{\nu \in \mathbb{R}^n} \quad - \frac{1}{2}\|\nu\|_2^2 + y^T\nu \quad \text{subject to} \quad \|X^T \nu\|_\infty \le \lambda
+\]
+
+\subsection*{6. Finding $\lambda_{\text{max}}$}
+We want to find the value $\lambda_{\text{max}}$ such that for any $\lambda > \lambda_{\text{max}}$, the primal solution is $\beta^* = 0_p$.
+
+If the primal solution is $\beta^* = 0_p$
+
+Now we use the KKT optimality conditions. The stationarity condition (from minimizing the Lagrangian w.r.t. $z$) gave us the relationship:
+\[
+z^* + \nu^* = 0 \quad \implies \quad \nu^* = -z^*
+\]
+(Note: Using the other sign convention for the Lagrangian, $\nu^* = z^*$, leads to the same final result).
+
+Substituting our primal solutions, the optimal dual variable must be:
+\[
+\nu^* = -z^* = -y
+\]
+For $\beta^* = 0_p$ to be the optimal solution, its corresponding dual partner $\nu^* = -y$ must be a **feasible solution for the dual problem $(D)$**.
+
+The feasibility condition for the dual problem is its constraint:
+\[
+\|X^T \nu^*\|_\infty \le \lambda
+\]
+We substitute $\nu^* = -y$ into this constraint:
+\[
+\|X^T (-y)\|_\infty \le \lambda
+\]
+Since the $L_\infty$-norm is absolute ($|-a| = |a|$), this is:
+\[
+\|X^T y\|_\infty \le \lambda
+\]
+This is the condition on $\lambda$ that ensures the solution is $\beta^* = 0_p$. If $\lambda$ is greater than or equal to this value, the optimal solution will be the zero vector.
+
+Therefore, the threshold $\lambda_{\text{max}}$ is the smallest value for which this holds:
+\[
+\lambda_{\text{max}} = \|X^T y\|_\infty
+\]
+
+This means $\lambda_{\text{max}}$ is the largest (in absolute value) inner product between any single feature and the response vector $y$.
+
 \begin{equation}
     \lambda_{\max} = \dots
 \end{equation}
@@ -149,7 +283,28 @@ In this question, let $X_n$ ($n=0,\dots,N-1)$ be a Gaussian white noise.
 \end{exercise}
 
 \begin{solution}
+Assume $(X_n)$ is Gaussian white noise with variance $\sigma^2$, i.e. the $X_n$ are i.i.d.\ $\mathcal{N}(0,\sigma^2)$.
 
+\subsection*{Autocovariance}
+Independence gives for any integer lag $\tau$:
+\[
+\gamma(\tau)=\mathbb{E}[X_n X_{n+\tau}] =
+\begin{cases}
+\sigma^2, & \tau=0,\\[4pt]
+0, & \tau\neq 0.
+\end{cases}
+\]
+Equivalently $\gamma(\tau)=\sigma^2\mathbf{1}_{\{\tau=0\}}$ (Kronecker delta form).
+
+\subsection*{Power spectrum}
+The power spectrum is the Fourier transform of $\gamma(\tau)$:
+\[
+S(f)=\sum_{\tau=-\infty}^{+\infty}\gamma(\tau)\,e^{-2\pi i f \tau / f_s}
+= \sigma^2 \sum_{\tau=-\infty}^{+\infty}\mathbf{1}_{\{\tau=0\}} e^{-2\pi i f \tau / f_s}
+= \sigma^2,
+\]
+i.e. the spectrum is \emph{constant} (flat) across all frequencies.  
+This constant spectrum is the reason the process is called ``white'' noise (analogy to white light which has equal power at all visible frequencies).
 \end{solution}
 
 
@@ -167,6 +322,35 @@ for $\tau=0,1,\dots,N-1$ and $\hat{\gamma}(\tau):=\hat{\gamma}(-\tau)$ for $\tau
 \end{exercise}
 
 \begin{solution}
+\subsection*{Bias of \(\hat\gamma(\tau)\)}
+Compute the expectation (for any stationary process with mean zero):
+\[
+\mathbb{E}\big[\hat{\gamma}(\tau)\big]
+= \frac{1}{N}\sum_{n=0}^{N-\tau-1}\mathbb{E}[X_n X_{n+\tau}]
+= \frac{N-\tau}{N}\,\gamma(\tau).
+\]
+Thus
+\[
+\mathbb{E}\big[\hat{\gamma}(\tau)\big] = \left(1-\frac{\tau}{N}\right)\gamma(\tau).
+\]
+Therefore $\hat\gamma(\tau)$ is \emph{biased} for finite $N$ (unless $\gamma(\tau)=0$ or $\tau=0$).  
+However, as $N\to\infty$ with fixed $\tau$,
+\[
+\mathbb{E}\big[\hat{\gamma}(\tau)\big] \longrightarrow \gamma(\tau),
+\]
+so $\hat\gamma(\tau)$ is \emph{asymptotically unbiased}.
+
+\subsection*{A simple de-biasing (unbiased estimator)}
+A straightforward unbiased estimator is obtained by dividing by the number of terms $(N-\tau)$ instead of $N$:
+\[
+\tilde{\gamma}(\tau):=\frac{1}{N-\tau}\sum_{n=0}^{N-\tau-1} X_n X_{n+\tau}.
+\]
+Indeed,
+\[
+\mathbb{E}\big[\tilde{\gamma}(\tau)\big] = \frac{1}{N-\tau}\sum_{n=0}^{N-\tau-1}\gamma(\tau)=\gamma(\tau).
+\]
+So $\tilde\gamma(\tau)$ is unbiased for every finite $N$ (for $0\le\tau\le N-1$).  
+This is the usual ``$N-\tau$'' normalization used when one wants an unbiased sample autocovariance.
 
 \end{solution}
 
@@ -317,7 +501,71 @@ which decreases to \(0\) as \(\tau \rightarrow N\).
 \end{exercise}
 
 \begin{solution}
-    
+This solution builds upon the results from Question 4. We assume $X_n$ is a wide-sense stationary (WSS) Gaussian process with $\mathbb{E}[X_n] = 0$ (centered). The true autocovariance is $\gamma(\tau) = \mathbb{E}[X_n X_{n+\tau}]$. The estimator is $\hat{\gamma}(\tau) = \frac{1}{N} \sum_{n=0}^{N-\tau-1} X_n X_{n+\tau}$.
+
+\subsection*{Part 1: Deriving the Variance}
+
+The variance of the estimator is defined as:
+\[
+\text{var}(\hat{\gamma}(\tau)) = \mathbb{E}[\hat{\gamma}(\tau)^2] - \left(\mathbb{E}[\hat{\gamma}(\tau)]\right)^2
+\]
+From Question 4, we know the second term: $\mathbb{E}[\hat{\gamma}(\tau)] = \left(1 - \frac{\tau}{N}\right) \gamma(\tau)$.
+So, $\left(\mathbb{E}[\hat{\gamma}(\tau)]\right)^2 = \left(1 - \frac{\tau}{N}\right)^2 \gamma^2(\tau)$.
+
+The main task is to compute the first term, $\mathbb{E}[\hat{\gamma}(\tau)^2]$.
+\[
+\mathbb{E}[\hat{\gamma}(\tau)^2] = \mathbb{E}\left[ \left( \frac{1}{N} \sum_{n=0}^{N-\tau-1} X_n X_{n+\tau} \right) \left( \frac{1}{N} \sum_{m=0}^{N-\tau-1} X_m X_{m+\tau} \right) \right]
+\]
+\[
+\mathbb{E}[\hat{\gamma}(\tau)^2] = \frac{1}{N^2} \sum_{n=0}^{N-\tau-1} \sum_{m=0}^{N-\tau-1} \mathbb{E}[X_n X_{n+\tau} X_m X_{m+\tau}]
+\]
+Now we use the hint for the expectation of four centered Gaussian variables. Let $Y_1=X_n, Y_2=X_{n+\tau}, Y_3=X_m, Y_4=X_{m+\tau}$.
+\[
+\mathbb{E}[Y_1 Y_2 Y_3 Y_4] = \mathbb{E}[Y_1 Y_2]\mathbb{E}[Y_3 Y_4] + \mathbb{E}[Y_1 Y_3]\mathbb{E}[Y_2 Y_4] + \mathbb{E}[Y_1 Y_4]\mathbb{E}[Y_2 Y_3]
+\]
+Let's translate this back using the definition $\gamma(k) = \mathbb{E}[X_i X_{i+k}]$.
+\begin{itemize}
+    \item $\mathbb{E}[Y_1 Y_2]\mathbb{E}[Y_3 Y_4] = \mathbb{E}[X_n X_{n+\tau}] \mathbb{E}[X_m X_{m+\tau}] = \gamma(\tau) \cdot \gamma(\tau) = \gamma^2(\tau)$
+    \item $\mathbb{E}[Y_1 Y_3]\mathbb{E}[Y_2 Y_4] = \mathbb{E}[X_n X_m] \mathbb{E}[X_{n+\tau} X_{m+\tau}] = \gamma(m-n) \cdot \gamma((m+\tau)-(n+\tau)) = \gamma(m-n) \gamma(m-n) = \gamma^2(m-n)$
+    \item $\mathbb{E}[Y_1 Y_4]\mathbb{E}[Y_2 Y_3] = \mathbb{E}[X_n X_{m+\tau}] \mathbb{E}[X_{n+\tau} X_m] = \gamma(m+\tau-n) \cdot \gamma(m-(n+\tau)) = \gamma(m-n+\tau)\gamma(m-n-\tau)$
+\end{itemize}
+Substituting this into the double sum for $\mathbb{E}[\hat{\gamma}(\tau)^2]$:
+\[
+\mathbb{E}[\hat{\gamma}(\tau)^2] = \frac{1}{N^2} \sum_{n=0}^{N-\tau-1} \sum_{m=0}^{N-\tau-1} \left[ \gamma^2(\tau) + \gamma^2(m-n) + \gamma(m-n+\tau)\gamma(m-n-\tau) \right]
+\]
+We separate the $\gamma^2(\tau)$ term, which is constant in the sums:
+\[
+\frac{1}{N^2} \sum_{n=0}^{N-\tau-1} \sum_{m=0}^{N-\tau-1} \gamma^2(\tau) = \frac{1}{N^2} (N-\tau)(N-\tau) \gamma^2(\tau) = \left(\frac{N-\tau}{N}\right)^2 \gamma^2(\tau) = \left(1 - \frac{\tau}{N}\right)^2 \gamma^2(\tau)
+\]
+This is exactly the term $\left(\mathbb{E}[\hat{\gamma}(\tau)]\right)^2$.
+
+Now, let's find the variance:
+\[
+\text{var}(\hat{\gamma}(\tau)) = \mathbb{E}[\hat{\gamma}(\tau)^2] - \left(\mathbb{E}[\hat{\gamma}(\tau)]\right)^2
+\]
+\[
+\text{var}(\hat{\gamma}(\tau)) = \left[ \left(1 - \frac{\tau}{N}\right)^2 \gamma^2(\tau) + \dots \right] - \left(1 - \frac{\tau}{N}\right)^2 \gamma^2(\tau)
+\]
+The $\gamma^2(\tau)$ terms cancel out, leaving only the other two terms from the Gaussian expansion:
+\[
+\text{var}(\hat{\gamma}(\tau)) = \frac{1}{N^2} \sum_{n=0}^{N-\tau-1} \sum_{m=0}^{N-\tau-1} \left[ \gamma^2(m-n) + \gamma(m-n+\tau)\gamma(m-n-\tau) \right]
+\]
+This is a double sum where the summand only depends on the difference $k = m-n$. We can convert this to a single sum over $k$.
+Let $A = N-\tau$. The sum is $\sum_{n=0}^{A-1} \sum_{m=0}^{A-1} f(m-n)$. The lag $k = m-n$ ranges from $-(A-1)$ to $A-1$.
+For any given $k$ in this range, the number of $(n, m)$ pairs that produce this lag is $(A - |k|)$, or $(N-\tau-|k|)$.
+So, we can rewrite the double sum as:
+\[
+\text{var}(\hat{\gamma}(\tau)) = \frac{1}{N^2} \sum_{k=-(N-\tau-1)}^{N-\tau-1} (N-\tau-|k|) \left[ \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right]
+\]
+To match the formula in the exercise, we factor out $1/N$:
+\[
+\text{var}(\hat{\gamma}(\tau)) = \frac{1}{N} \sum_{k=-(N-\tau-1)}^{N-\tau-1} \frac{N-\tau-|k|}{N} \left[ \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right]
+\]
+\[
+\text{var}(\hat{\gamma}(\tau)) = \frac{1}{N} \sum_{k=-(N-\tau-1)}^{N-\tau-1} \left(1 - \frac{\tau+|k|}{N}\right) \left[ \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right]
+\]
+This completes the proof of the first part.
+
 \end{solution}
 
 Contrary to the correlogram, the periodogram is not consistent.
@@ -546,6 +794,133 @@ Display on Figure~\ref{fig:class-errors} a badly classified step from each class
     \label{fig:class-errors}
 \end{figure}
 \end{solution}
+
+\appendix
+
+\section{Conjugate of the vector $\ell_1$ norm}
+Let $f(x)=\|x\|_1$. Compute
+\[
+f^*(y)=\sup_{x\in\mathbb{R}^n}\{\langle y,x\rangle - \|x\|_1\}.
+\]
+
+\subsection*{Case 1: $\|y\|_\infty \le 1$}
+Using the Hölder inequality (or the definition of the dual norm),
+\[
+\langle y,x\rangle \le \|y\|_\infty \, \|x\|_1 \le \|x\|_1.
+\]
+Thus for every $x$,
+\[
+\langle y,x\rangle - \|x\|_1 \le 0.
+\]
+Taking the supremum over $x$ yields $f^*(y)\le 0$. The value $0$ is attained in the limit at $x=0$ (indeed $\langle y,0\rangle-\|0\|_1=0$), hence
+\[
+f^*(y)=0 \quad\text{when }\|y\|_\infty\le 1.
+\]
+
+\subsection*{Case 2: $\|y\|_\infty > 1$}
+There exists an index $i$ with $|y_i|>1$. Fix that index and consider vectors of the form $x = t e_i \cdot \operatorname{sign}(y_i)$ for scalar $t>0$, where $e_i$ is the $i$th coordinate unit vector. Then
+\[
+\langle y,x\rangle - \|x\|_1 = t |y_i| - t = t(|y_i|-1).
+\]
+Since $|y_i|-1>0$, letting $t\to +\infty$ makes the expression tend to $+\infty$. Therefore $f^*(y)=+\infty$ for any $y$ with $\|y\|_\infty>1$.
+
+\subsection*{Conclusion for vectors}
+Combining the two cases,
+\[
+\boxed{ \; (\|\cdot\|_1)^*(y) =
+\begin{cases}
+0, & \|y\|_\infty \le 1,\\[4pt]
++\infty, & \|y\|_\infty > 1,
+\end{cases} \; }
+\]
+i.e. the conjugate is the \emph{indicator function} of the $\ell_\infty$ unit ball:
+\[
+(\|\cdot\|_1)^*(y)=\iota_{\{y:\|y\|_\infty\le 1\}}(y).
+\]
+This matches the general fact that the conjugate of a (nonnegative, proper) norm is the indicator of the unit ball of its dual norm.
+
+\section{Entrywise matrix $\ell_1$ norm}
+Let $X\in\mathbb{R}^{m\times n}$ and define the entrywise $\ell_1$ (sometimes called the elementwise $\ell_1$) norm
+\[
+\|X\|_{1} := \sum_{i=1}^m\sum_{j=1}^n |X_{ij}|.
+\]
+Identify matrices with vectors in $\mathbb{R}^{mn}$ by stacking entries. The dual norm (entrywise) is the elementwise $\ell_\infty$ norm
+\[
+\|Y\|_{\infty,\text{entry}} := \max_{i,j} |Y_{ij}|.
+\]
+Applying the same argument as for vectors (or the general dual-norm conjugate fact) we obtain
+\[
+\boxed{\; (\|\cdot\|_{1})^*(Y) =
+\begin{cases}
+0, & \max_{i,j}|Y_{ij}|\le 1,\\[4pt]
++\infty, & \max_{i,j}|Y_{ij}|>1.
+\end{cases} \;}
+\]
+Equivalently,
+\[
+(\|\cdot\|_1)^*(Y)=\iota_{\{Y:\|Y\|_{\infty,\text{entry}}\le 1\}}(Y).
+\]
+
+\section{Fenchel--Young equality and subgradient characterization}
+For a convex, proper $f$ and points $x,y$ the Fenchel--Young inequality states
+\[
+\langle y,x\rangle \le f(x) + f^*(y).
+\]
+Equality holds iff $y\in\partial f(x)$ (i.e. $y$ is a subgradient of $f$ at $x$). Specializing to $f(x)=\|x\|_1$ and using the conjugate above:
+
+\begin{itemize}
+  \item If $\|y\|_\infty>1$ then $f^*(y)=+\infty$ and Fenchel--Young gives no finite equality.
+  \item If $\|y\|_\infty\le 1$ then $f^*(y)=0$ and equality $\langle y,x\rangle = \|x\|_1$ holds exactly when $y\in\partial\|x\|_1$, i.e. componentwise
+  \[
+  y_i = \begin{cases}
+  \operatorname{sign}(x_i) & \text{if }x_i\neq 0,\\[4pt]
+  \theta_i \in [-1,1] & \text{if }x_i=0,
+  \end{cases}
+  \quad i=1,\dots,n,
+  \]
+  and therefore $\|y\|_\infty\le 1$.
+\end{itemize}
+
+For matrices the subgradient description is the same applied entrywise.
+
+\section{Remarks and related conjugates}
+\begin{itemize}
+  \item \textbf{Dual-norm viewpoint.} The result is a direct instance of the general fact: if $f(x)=\|x\|$ is a norm then $f^*(y)=\iota_{\{\|y\|_*\le 1\}}(y)$ where $\|\cdot\|_*$ is the dual norm.
+  \item \textbf{Other matrix norms.} The entrywise $\ell_1$ norm has dual the entrywise $\ell_\infty$ norm. By contrast, the nuclear (trace) norm $\|\cdot\|_*$(sum of singular values) is dual to the operator (spectral) norm $\|\cdot\|_{2\to2}$; its conjugate is the indicator of the spectral-norm unit ball:
+  \[
+  (\|\cdot\|_*)^*(Y)=\iota_{\{\|Y\|_{2\to2}\le 1\}}(Y).
+  \]
+  This is often used in low-rank matrix problems and is conceptually analogous.
+  \item \textbf{Proximal operator.} The proximal operator of $\lambda\|x\|_1$ (soft-thresholding) can be derived from Moreau decomposition which uses the conjugate. Moreau identity:
+  \[
+  \operatorname{prox}_{\lambda f}(v) + \lambda\,\operatorname{prox}_{f^*/\lambda}\big(v/\lambda\big) = v.
+  \]
+  For $f=\|\cdot\|_1$ the projection onto the $\ell_\infty$ unit ball appears in the decomposition.
+\end{itemize}
+
+\section{Short examples}
+\begin{enumerate}
+  \item $x=(2,-3)$, $y=(1,0.5)$: $\|y\|_\infty = 1 \le 1$, so $(\|\cdot\|_1)^*(y)=0$ and $\langle y,x\rangle - \|x\|_1 = (1)(2) + (0.5)(-3) - (2+3) = 2 -1.5 -5 = -4.5 \le 0$.
+  \item $y=(1.2,0)$: $\|y\|_\infty = 1.2>1$, hence $(\|\cdot\|_1)^*(y)=+\infty$ (supremum is unbounded).
+\end{enumerate}
+
+This infimum is separable. For each component $j$:
+\begin{itemize}
+    \item If $|v_j| > \lambda$, we can choose $\beta_j \to \mp\infty$ (opposite sign of $v_j$) to make the expression go to $-\infty$.
+    \item If $|v_j| \le \lambda$, the minimum is $0$, achieved at $\beta_j = 0$.
+\end{itemize}
+Thus, the infimum is $0$ if and only if $|v_j| \le \lambda$ for all $j$, and $-\infty$ otherwise. This condition is $\|v\|_\infty \le \lambda$, or:
+\[
+\|X^T \nu\|_\infty \le \lambda
+\]
+
+\textbf{Combining the results,} the dual function is:
+\[
+g(\nu) = \begin{cases}
+    -\frac{1}{2}\|\nu\|_2^2 - \nu^T y & \text{if } \|X^T \nu\|_\infty \le \lambda \\
+    -\infty & \text{if } \|X^T \nu\|_\infty > \lambda
+\end{cases}
+\]
 
 
 \end{document}
