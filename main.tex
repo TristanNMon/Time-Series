@@ -463,27 +463,11 @@ to take the limit of $N$ in the whole expression, to have
     \begin{itemize}
         \item The theoretical autocovariance of white noise is $\sigma^2$ at lag=0 and 0 everywhere else. 
         Here the sample autocovariance has the peak of 1 at lag=0 and abruptly decreases to low fluctuations around 0 with standard deviation of ~0.1 for N=200.
-        The standard deviation slowly decreases with the number of lags. That is coherent with the expression of the variance derived below. With bigger N, the standard deviation is lower for all lags, around 0.02 for N=500 at low lag.
+        The standard deviation slowly decreases with the number of lags. That is not obvious from the expression derived further in Question 7. With bigger N, the standard deviation is lower for all lags, around 0.02 for N=500 at low lag.
         \item Theoretically, the periodogram of gaussian white noise is flat and equal to $\sigma^2/f_s = 1$ at all frequencies.
         Here we have a mean around 1 and a standard deviation of 1 too (we rescaled the autocovariances by 0.5 after computing the onesided periodogram)
         The standard deviation does not decrease with N.
     \end{itemize}
-Expression of variance:
-\[
-\mathrm{var}\big(\hat{\gamma}(\tau)\big)
-= \frac{1}{N^2}\sum_{n=0}^{N-1-\tau} \mathrm{var}(X_n X_{n+\tau})
-= \frac{N-\tau}{N^2}\,\mathbb{E}[X_0^2 X_{0+\tau}^2] = \frac{N-\tau}{N^2}\,\sigma^4.
-\]
-
-Therefore,
-\[
-\mathrm{std}\big(\hat{\gamma}(\tau)\big)
-= \sigma^2 \sqrt{\frac{1-\tau/N}{N}}.
-\]
-which decreases to \(0\) as \(\tau \rightarrow N\).
-
- 
-
 
 \end{solution}
 
@@ -584,6 +568,8 @@ In the following question, this is proven for Gaussian white noise, but this hol
 
 \begin{solution}
 
+There is a small typo : $J(f) = (1/\sqrt{N}) (A(f) + \iu B(f))$
+
 1) $A(f)$ and $B(f)$ are linear combinations of centered independent Gaussian variables, hence
 they are also centered Gaussian:
 \[
@@ -607,93 +593,108 @@ For the variance, by bilinearity of covariances:
 
 For $k \in \{1, \ldots, N/2-1\}$, we have:
 \begin{align*}
-\mathrm{var}\big(A(f_k)\big) 
-&= \sigma^2 \sum_{n=0}^{N-1} 
-    \cos^2\!\left(\frac{2\pi k n}{N/f_s}\right) \\
-&= \sigma^2 \sum_{n=0}^{N-1} 
-    \frac{1}{2}\left(1 - \cos\!\left(\frac{4\pi k n}{N/f_s}\right)\right) \\
-&= \frac{N\sigma^2}{2}.
+\mathrm{var}\big(A(f_k)\big) = \sigma^2 \sum_{n=0}^{N-1} 
+    \cos^2\!\left(\frac{2\pi k n}{N}\right) = \sigma^2 \sum_{n=0}^{N-1} 
+    \frac{1}{2}\left(1 + \cos\!\left(\frac{4\pi k n}{N}\right)\right) = \frac{N\sigma^2}{2}.
 \end{align*}
 
+
+Because for $k \neq 0$ and $k \neq N/2$, the sum of cosines is zero.
 The same result holds for $B(f_k)$.
 
-For $k = 0$ or $k = N/2$, we have $\cos^2(2\pi k n/(N/f_s)) = 1$ and $\sin^2(2\pi k n/(N/f_s)) = 0$, so:
-\[
-\mathrm{var}\big(A(f_0)\big) = \mathrm{var}\big(A(f_{N/2})\big) = N\sigma^2, 
-\quad \mathrm{var}\big(B(f_0)\big) = \mathrm{var}\big(B(f_{N/2})\big) = 0.
-\]
+For $k = 0$:  $\cos^2(0) = 1$ and $\sin^2(0) = 0$. For $k = N/2$: $\cos^2(\pi n) = 1$ and $\sin^2(\pi n) = 0$,
 
 To sum up:
 \[
-\operatorname{Var}[A(f_k)] =
-\begin{cases}
-    N\sigma^2, & \text{if } k = 0 \text{ or } k = N/2, \\[6pt]
-    (N/2)\sigma^2, & \text{if } 0 < k < N/2,
-\end{cases}
-\qquad
-\operatorname{Var}[B(f_k)] =
-\begin{cases}
-    0, & \text{if } k = 0 \text{ or } k = N/2, \\[6pt]
-    (N/2)\sigma^2, & \text{if } 0 < k < N/2.
-\end{cases}
+  \boxed{
+  \operatorname{var}\big(A(f_k)\big)
+  = \operatorname{var}\big(B(f_k)\big)
+  = \tfrac{N}{2}\sigma^2.}
 \]
+\[
+  \boxed{
+  \operatorname{var}\big(A(f_0)\big) = N\sigma^2, \quad
+  \operatorname{var}\big(B(f_0)\big) = 0.}
+\]
+\[
+  \boxed{
+  \operatorname{var}\big(A(f_{N/2})\big) = N\sigma^2, \quad
+  \operatorname{var}\big(B(f_{N/2})\big) = 0.}
+  \]
 
----
 
 2) The periodogram writes:
 \[
 |J(f_k)|^2 = \frac{1}{N} \big(A(f_k)^2 + B(f_k)^2\big).
 \]
 
+Define the normalized variables $Z_A$ and $Z_B$ such that:
+\[A(f_k) = \sqrt{(N/2)\sigma^2} Z_A(f_k) , \quad B(f_k) = \sqrt{(N/2)\sigma^2} Z_B(f_k).\]
+
 For $0 < k < N/2$:
 \begin{align*}
 |J(f_k)|^2
-    &= \frac{1}{N} \left((N/2)\sigma^2 Z_A^2 + (N/2)\sigma^2 Z_B^2\right) \\
-    &= \frac{\sigma^2}{2} (Z_A^2 + Z_B^2),
+    = \frac{1}{N} \left((N/2)\sigma^2 Z_A^2 + (N/2)\sigma^2 Z_B^2\right)
+    = \frac{\sigma^2}{2} (Z_A^2 + Z_B^2),
 \end{align*}
-where $Z_A, Z_B \sim \mathcal{N}(0, 1)$ are independent, since their covariance is zero (using trigonometric orthogonality):
+
+For $k = 0$ or $k = N/2$, we have $B(f_k) = 0$ and 
+$A(f_k) \sim \mathcal{N}(0, N\sigma^2)$, hence
+\[
+|J(f_k)|^2 = \frac{1}{N} A(f_k)^2 = \frac{1}{N} N\sigma^2 Z_A^2 = \sigma^2 Z_A^2.
+\]
+
+And using $2 \cos(x) \sin(y) = \sin(2x)$, we have:
+
 \begin{align*}
 \mathrm{cov}(A(f_k), B(f_k)) 
 &= \sum_{n=0}^{N-1} \sum_{m=0}^{N-1} 
     \mathrm{cov}(X_n, X_m)\,
     \cos(2\pi f_k n/f_s)
-    \sin(2\pi f_k m/f_s) \\
+    \sin(-2\pi f_k m/f_s) \\
 &= \sigma^2 \sum_{n=0}^{N-1}
-    \frac{1}{2}\sin(4\pi f_k n/f_s) = 0.
+    \frac{1}{2}\sin(-4\pi f_k n/f_s) = 0.
 \end{align*}
 
-Hence
+Hence $A(f_k)$, $B(f_k)$ are uncorrelated Gaussian variables, hence independent.
+Same for $Z_A$ and $Z_B$.
+And the periodogram is then a sum of squares of two independent standard normal variables,
+that is it follows a $\chi^2$ distribution:
+
+For $0 < k < N/2$:
 \[
 |J(f_k)|^2 = \frac{\sigma^2}{2}(Z_A^2 + Z_B^2)
     \sim \frac{\sigma^2}{2}\chi^2_2.
 \]
 
-For $k = 0$ or $k = N/2$, we have $B(f_k) = 0$ and 
-$A(f_k) \sim \mathcal{N}(0, N\sigma^2)$, hence
+For $k = 0$ or $k = N/2$:
 \[
-|J(f_k)|^2 = \frac{1}{N} A(f_k)^2 \sim \sigma^2 \chi^2_1.
+|J(f_k)|^2 = \sigma^2 Z_A^2
+    \sim \sigma^2\chi^2_1.
 \]
 
----
+
+
 
 3) For $0 < k < N/2$:
 \begin{align*}
-\operatorname{Var}[|J(f_k)|^2]
-&= \operatorname{Var}\!\left[\frac{\sigma^2}{2}\chi^2_2\right] \\
-&= \frac{\sigma^4}{4} \operatorname{Var}[\chi^2_2] \\
-&= \frac{\sigma^4}{4} \cdot (2 \cdot 2) = \sigma^4.
+\operatorname{Var}[|J(f_k)|^2] 
+= \operatorname{Var}\!\left[\frac{\sigma^2}{2}\chi^2_2\right] 
+= \frac{\sigma^4}{4} \operatorname{Var}[\chi^2_2]
+= \frac{\sigma^4}{4} \cdot (2 \cdot 2) = \sigma^4
 \end{align*}
 
 And for $k = 0$ or $k = N/2$:
 \begin{align*}
 \operatorname{Var}[|J(f_k)|^2]
-&= \operatorname{Var}[\sigma^2 \chi^2_1] \\
-&= \sigma^4 \operatorname{Var}[\chi^2_1] \\
-&= \sigma^4 \cdot 2 = 2\sigma^4.
+= \operatorname{Var}[\sigma^2 \chi^2_1]
+= \sigma^4 \operatorname{Var}[\chi^2_1]
+= \sigma^4 \cdot 2 = 2\sigma^4
 \end{align*}
-Because the variance is constant and does not converge to 0 with $N$ we 
-believe the periodogram is not consistent, ie does not converge in probability to the true power spectrum.
-We don't provide a rigorous proof here.
+
+For all $k$, the variance does not depend on $N$ and does not go to $0$ as $N \to \infty$. Without
+providing a strong argument of why it disproves consistency, we feel it must be the case and conclude that the periodogram is not consistent.
+Variance is a lower bound on mean squared error, but logical implication between MSE not converging to $0$ and no consistency is not straightforward.
 
 4)
 The covariance between two periodogram values at different frequencies $f_k$ and $f_{l}$, with $k \neq l$, is $0$.
