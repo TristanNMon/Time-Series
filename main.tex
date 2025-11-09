@@ -401,13 +401,13 @@ with $k_n = \lfloor N f / f_s \rfloor$.
      \gamma(\tau)\, e^{-2\pi \mathrm{i} f^{(N)} \tau / f_s}
 \]
 
-TODO We assume the summability of the autocovariances and their square is sufficient
+We assume the summability of the autocovariances and their square is sufficient
 to take the limit of $N$ in the whole expression, to have
 
-\[
+\[\boxed{
 \mathbb{E}[|J(f^{(N)})|^2] \rightarrow \sum_{\tau=-\infty}^{+\infty} 
      \gamma(\tau)\, e^{-2\pi \mathrm{i} f \tau / f_s}
-= S(f).
+= S(f).}
 \]
 
 
@@ -721,34 +721,34 @@ And the periodogram is then a sum of squares of two independent standard normal 
 that is it follows a $\chi^2$ distribution:
 
 For $0 < k < N/2$:
-\[
+\[\boxed{
 |J(f_k)|^2 = \frac{\sigma^2}{2}(Z_A^2 + Z_B^2)
-    \sim \frac{\sigma^2}{2}\chi^2_2.
+    \sim \frac{\sigma^2}{2}\chi^2_2.}
 \]
 
 For $k = 0$ or $k = N/2$:
-\[
+\[\boxed{
 |J(f_k)|^2 = \sigma^2 Z_A^2
-    \sim \sigma^2\chi^2_1.
+    \sim \sigma^2\chi^2_1.}
 \]
 
 
 
 
 3) For $0 < k < N/2$:
-\begin{align*}
+\begin{align*}\boxed{
 \operatorname{Var}[|J(f_k)|^2] 
 = \operatorname{Var}\!\left[\frac{\sigma^2}{2}\chi^2_2\right] 
 = \frac{\sigma^4}{4} \operatorname{Var}[\chi^2_2]
-= \frac{\sigma^4}{4} \cdot (2 \cdot 2) = \sigma^4
+= \frac{\sigma^4}{4} \cdot (2 \cdot 2) = \sigma^4}
 \end{align*}
 
 And for $k = 0$ or $k = N/2$:
-\begin{align*}
+\begin{align*}\boxed{
 \operatorname{Var}[|J(f_k)|^2]
 = \operatorname{Var}[\sigma^2 \chi^2_1]
 = \sigma^4 \operatorname{Var}[\chi^2_1]
-= \sigma^4 \cdot 2 = 2\sigma^4
+= \sigma^4 \cdot 2 = 2\sigma^4}
 \end{align*}
 
 For all $k$, the variance does not depend on $N$ and does not go to $0$ as $N \to \infty$. Without
@@ -829,8 +829,8 @@ Combine the DTW and a k-neighbors classifier to classify each step. Find the opt
 \end{exercise}
 
 \begin{solution}
-To ensure that the Dynamic Time Warping distance is meaningful and comparable across steps, we pre-processed every step segment before classification. First, a 15 Hz low-pass Butterworth filter was applied to remove high frequency sensor noise not related to gait biomechanics. Then each segment was centered and normalized to unit variance to remove subject-specific amplitude scaling and sensor placement effects. Finally, all steps were resampled to the mean step length of the training set so that the DTW alignment cost was not biased by different segment lengths. This standardization procedure stabilizes DTW, reduces variance, and isolates the temporal morphology of the step — which is the discriminative information we want to classify and not the raw sampling artifacts.
-observed results comment
+To ensure that the Dynamic Time Warping distance is meaningful and comparable across steps, we pre-processed every step segment before classification. First, a 15 Hz low-pass Butterworth filter was applied to remove high frequency sensor noise not related to gait biomechanics. Then each segment was centered and normalized to unit variance to remove subject-specific amplitude scaling and sensor placement effects. Finally, all steps were resampled to the mean step length of the training set so that the DTW alignment cost was not biased by different segment lengths. This standardization procedure stabilizes DTW, reduces variance, and isolates the temporal morphology of the step, which is the discriminative information we want to classify and not the raw sampling artifacts.
+
 After this preprocessing pipeline, cross-validation on the training set gave an optimal 
 $K=7$ for kNN with an F1 score of 0.884 (balanced train). However, on the held-out test set the F1 dropped to 0.523. The drop is explained primarily by the strong class prior shift between train (ratio 0.91) and test (ratio 4.87). The ration being the number of non-healthy/healthy in a dataset. kNN + DTW is a density based classifier, therefore very sensitive to class frequency changes. The method itself generalizes, but its statistical assumptions (balanced priors) changed substantially at test time.
 \end{solution}
