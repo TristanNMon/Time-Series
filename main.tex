@@ -5,8 +5,8 @@
 % Document title
 \title{Assignment 1 (ML for TS) - MVA}
 \author{
-Firstname Lastname \email{youremail1@mail.com} \\ % student 1
-Firstname Lastname \email{youremail2@mail.com} % student 2
+Jules Royer \email{jules.royer@etu.minesparis.psl.eu} \\ % student 1
+Tristan Montalbetti \email{tristan.montalbetti@etu.minesparis.psl.eu} % student 2
 }
 
 \begin{document}
@@ -550,6 +550,65 @@ To match the formula in the exercise, we factor out $1/N$:
 \]
 This completes the proof of the first part.
 
+\subsection*{Part 2: Concluding on Consistency}
+An estimator $\hat{\theta}_N$ is consistent for $\theta$ if it converges in probability to $\theta$ as $N \to \infty$. That is, for any $\epsilon > 0$:
+\[
+\lim_{N \to \infty} P\left(|\hat{\gamma}(\tau) - \gamma(\tau)| \ge \epsilon\right) = 0
+\]
+We can prove this using Chebyshev's inequality. A general form of Chebyshev's inequality (sometimes called the "MSE" form or derived from Markov's inequality) states:
+\[
+P\left(|\hat{\gamma}(\tau) - \gamma(\tau)| \ge \epsilon\right) \le \frac{\mathbb{E}\left[(\hat{\gamma}(\tau) - \gamma(\tau))^2\right]}{\epsilon^2}
+\]
+The term in the numerator is the **Mean Squared Error (MSE)** of the estimator.
+\[
+\text{MSE}(\hat{\gamma}(\tau)) = \mathbb{E}\left[(\hat{\gamma}(\tau) - \gamma(\tau))^2\right] = \text{Bias}(\hat{\gamma}(\tau))^2 + \text{var}(\hat{\gamma}(\tau))
+\]
+To prove consistency, we just need to show that the MSE tends to zero as $N \to \infty$.
+
+\textbf{1. Bias Term:}
+From Question 4, we know the estimator is asymptotically unbiased. The bias is:
+\[
+\text{Bias}(\hat{\gamma}(\tau)) = \mathbb{E}[\hat{\gamma}(\tau)] - \gamma(\tau) = \left(1 - \frac{\tau}{N}\right) \gamma(\tau) - \gamma(\tau) = -\frac{\tau}{N} \gamma(\tau)
+\]
+As $N \to \infty$, the bias clearly goes to zero:
+\[
+\lim_{N \to \infty} \text{Bias}(\hat{\gamma}(\tau)) = \lim_{N \to \infty} -\frac{\tau}{N} \gamma(\tau) = 0
+\]
+Therefore, $\lim_{N \to \infty} \text{Bias}(\hat{\gamma}(\tau))^2 = 0$.
+
+\textbf{2. Variance Term:}
+From Part 1 of this exercise, we must show that $\lim_{N \to \infty} \text{var}(\hat{\gamma}(\tau)) = 0$.
+\[
+\text{var}(\hat{\gamma}(\tau)) = \frac{1}{N} \sum_{k=-(N-\tau-1)}^{N-\tau-1} \underbrace{\left(1 - \frac{\tau+|k|}{N}\right)}_{\le 1} \left[ \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right]
+\]
+The term $\left(1 - \frac{\tau+|k|}{N}\right)$ is always positive and less than or equal to 1.
+\[
+\text{var}(\hat{\gamma}(\tau)) \le \frac{1}{N} \sum_{k=-(N-\tau-1)}^{N-\tau-1} \left| \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right|
+\]
+We assumed that the autocovariances are absolutely summable, i.e., $\sum_{k=-\infty}^{\infty} |\gamma(k)| < \infty$. This implies $\gamma(k) \to 0$ as $|k| \to \infty$.
+If this holds, then $\gamma^2(k)$ and products like $\gamma(k+\tau)\gamma(k-\tau)$ are also absolutely summable.
+This means the sum converges to a finite constant $C$ as $N \to \infty$:
+\[
+\sum_{k=-\infty}^{\infty} \left| \gamma^2(k) + \gamma(k+\tau)\gamma(k-\tau) \right| = C < \infty
+\]
+Therefore,
+\[
+0 \le \lim_{N \to \infty} \text{var}(\hat{\gamma}(\tau)) \le \lim_{N \to \infty} \frac{1}{N} \sum_{k=-(N-\tau-1)}^{N-\tau-1} \left| \dots \right| = \lim_{N \to \infty} \frac{C}{N} = 0
+\]
+By the squeeze theorem, $\lim_{N \to \infty} \text{var}(\hat{\gamma}(\tau)) = 0$.
+
+\textbf{Conclusion:}
+Since $\lim_{N \to \infty} \text{Bias}(\hat{\gamma}(\tau))^2 = 0$ and $\lim_{N \to \infty} \text{var}(\hat{\gamma}(\tau)) = 0$, we have:
+\[
+\lim_{N \to \infty} \text{MSE}(\hat{\gamma}(\tau)) = 0
+\]
+Plugging this into our Chebyshev inequality:
+\[
+\lim_{N \to \infty} P\left(|\hat{\gamma}(\tau) - \gamma(\tau)| \ge \epsilon\right) \le \lim_{N \to \infty} \frac{\text{MSE}(\hat{\gamma}(\tau))}{\epsilon^2} = \frac{0}{\epsilon^2} = 0
+\]
+Since the probability is non-negative, by the squeeze theorem, the limit must be 0.
+This proves that $\hat{\gamma}(\tau)$ converges in probability to $\gamma(\tau)$ and is therefore a consistent estimator.
+
 \end{solution}
 
 Contrary to the correlogram, the periodogram is not consistent.
@@ -782,12 +841,12 @@ Display on Figure~\ref{fig:class-errors} a badly classified step from each class
 \begin{figure}
     \centering
     \begin{minipage}[t]{\textwidth}
-    \centerline{\includegraphics[width=0.6\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=0.6\textwidth]{figures/badly_classified_healthy_step.png}}
     \centerline{Badly classified healthy step}
     \end{minipage}
     \vskip1em
     \begin{minipage}[t]{\textwidth}
-    \centerline{\includegraphics[width=0.6\textwidth]{example-image-golden}}
+    \centerline{\includegraphics[width=0.6\textwidth]{figures/badly_classified_non_healthy_step.png}}
     \centerline{Badly classified non-healthy step}
     \end{minipage}
     \vskip1em
