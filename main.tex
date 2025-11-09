@@ -183,10 +183,6 @@ Therefore, the threshold $\lambda_{\text{max}}$ is the smallest value for which 
 
 This means $\lambda_{\text{max}}$ is the largest (in absolute value) inner product between any single feature and the response vector $y$.
 
-\begin{equation}
-    \lambda_{\max} = \dots
-\end{equation}
-
 \end{solution}
 
 \begin{exercise}
@@ -206,7 +202,7 @@ Show that
 \end{exercise}
 
 \begin{solution}  % ANSWER HERE
-We fix all the dictionary atoms $\mathbf{d}_k \in \mathbb{R}^{L}$ for $k = 1, \dots, K$,
+1) We fix all the dictionary atoms $\mathbf{d}_k \in \mathbb{R}^{L}$ for $k = 1, \dots, K$,
 and we note that $M = N - L + 1$ is the valid convolution length. 
 
 For a given pair $(\mathbf{z}_k, \mathbf{d}_k)$, the valid convolution 
@@ -244,12 +240,17 @@ We define:
 
 Hence we can then rewrite the sparse coding problem given the $(\mathbf{d}_k)$ in the LASSO form, with 
 response vector $\mathbf{x} \in \mathbb{R}^{N}$, design matrix $\mathbf{D}$ and regressor vector $\mathbf{z}$:
-\[
+\[\boxed{
 \min_{\mathbf{z} \in \mathbb{R}^{K \cdot M}} \;
 \left\| \mathbf{x} - \mathbf{D} \mathbf{z} \right\|_2^2
 \;+\;
 \lambda \|\mathbf{z}\|_1.
-\]
+}\]
+
+2) We use the Question 1 result with the lasso formulation above with response vector $\mathbf{x}$ and design matrix $\mathbf{D}$ to have:
+\[\boxed{
+\lambda_{\max} = \| \mathbf{D}^T \mathbf{x} \|_\infty.
+}\]
 
 
 
