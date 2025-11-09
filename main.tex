@@ -610,7 +610,7 @@ Since the probability is non-negative, by the squeeze theorem, the limit must be
 This proves that $\hat{\gamma}(\tau)$ converges in probability to $\gamma(\tau)$ and is therefore a consistent estimator.
 
 \end{solution}
-
+\newpage
 Contrary to the correlogram, the periodogram is not consistent.
 It is one of the most well-known estimators that is asymptotically unbiased but not consistent.
 In the following question, this is proven for Gaussian white noise, but this holds for more general stationary processes.
@@ -829,7 +829,10 @@ Combine the DTW and a k-neighbors classifier to classify each step. Find the opt
 \end{exercise}
 
 \begin{solution}
-
+To ensure that the Dynamic Time Warping distance is meaningful and comparable across steps, we pre-processed every step segment before classification. First, a 15 Hz low-pass Butterworth filter was applied to remove high frequency sensor noise not related to gait biomechanics. Then each segment was centered and normalized to unit variance to remove subject-specific amplitude scaling and sensor placement effects. Finally, all steps were resampled to the mean step length of the training set so that the DTW alignment cost was not biased by different segment lengths. This standardization procedure stabilizes DTW, reduces variance, and isolates the temporal morphology of the step — which is the discriminative information we want to classify and not the raw sampling artifacts.
+observed results comment
+After this preprocessing pipeline, cross-validation on the training set gave an optimal 
+$K=7$ for kNN with an F1 score of 0.884 (balanced train). However, on the held-out test set the F1 dropped to 0.523. The drop is explained primarily by the strong class prior shift between train (ratio 0.91) and test (ratio 4.87). The ration being the number of non-healthy/healthy in a dataset. kNN + DTW is a density based classifier, therefore very sensitive to class frequency changes. The method itself generalizes, but its statistical assumptions (balanced priors) changed substantially at test time.
 \end{solution}
 
 \newpage
@@ -855,8 +858,13 @@ Display on Figure~\ref{fig:class-errors} a badly classified step from each class
 \end{figure}
 \end{solution}
 
+\newpage
 \appendix
+\begin{center}
+{\Huge Annex}  % or Annexes
+\end{center}
 
+\vspace{2em}
 \section{Conjugate of the vector $\ell_1$ norm}
 Let $f(x)=\|x\|_1$. Compute
 \[
@@ -898,89 +906,5 @@ i.e. the conjugate is the \emph{indicator function} of the $\ell_\infty$ unit ba
 (\|\cdot\|_1)^*(y)=\iota_{\{y:\|y\|_\infty\le 1\}}(y).
 \]
 This matches the general fact that the conjugate of a (nonnegative, proper) norm is the indicator of the unit ball of its dual norm.
-
-\section{Entrywise matrix $\ell_1$ norm}
-Let $X\in\mathbb{R}^{m\times n}$ and define the entrywise $\ell_1$ (sometimes called the elementwise $\ell_1$) norm
-\[
-\|X\|_{1} := \sum_{i=1}^m\sum_{j=1}^n |X_{ij}|.
-\]
-Identify matrices with vectors in $\mathbb{R}^{mn}$ by stacking entries. The dual norm (entrywise) is the elementwise $\ell_\infty$ norm
-\[
-\|Y\|_{\infty,\text{entry}} := \max_{i,j} |Y_{ij}|.
-\]
-Applying the same argument as for vectors (or the general dual-norm conjugate fact) we obtain
-\[
-\boxed{\; (\|\cdot\|_{1})^*(Y) =
-\begin{cases}
-0, & \max_{i,j}|Y_{ij}|\le 1,\\[4pt]
-+\infty, & \max_{i,j}|Y_{ij}|>1.
-\end{cases} \;}
-\]
-Equivalently,
-\[
-(\|\cdot\|_1)^*(Y)=\iota_{\{Y:\|Y\|_{\infty,\text{entry}}\le 1\}}(Y).
-\]
-
-\section{Fenchel--Young equality and subgradient characterization}
-For a convex, proper $f$ and points $x,y$ the Fenchel--Young inequality states
-\[
-\langle y,x\rangle \le f(x) + f^*(y).
-\]
-Equality holds iff $y\in\partial f(x)$ (i.e. $y$ is a subgradient of $f$ at $x$). Specializing to $f(x)=\|x\|_1$ and using the conjugate above:
-
-\begin{itemize}
-  \item If $\|y\|_\infty>1$ then $f^*(y)=+\infty$ and Fenchel--Young gives no finite equality.
-  \item If $\|y\|_\infty\le 1$ then $f^*(y)=0$ and equality $\langle y,x\rangle = \|x\|_1$ holds exactly when $y\in\partial\|x\|_1$, i.e. componentwise
-  \[
-  y_i = \begin{cases}
-  \operatorname{sign}(x_i) & \text{if }x_i\neq 0,\\[4pt]
-  \theta_i \in [-1,1] & \text{if }x_i=0,
-  \end{cases}
-  \quad i=1,\dots,n,
-  \]
-  and therefore $\|y\|_\infty\le 1$.
-\end{itemize}
-
-For matrices the subgradient description is the same applied entrywise.
-
-\section{Remarks and related conjugates}
-\begin{itemize}
-  \item \textbf{Dual-norm viewpoint.} The result is a direct instance of the general fact: if $f(x)=\|x\|$ is a norm then $f^*(y)=\iota_{\{\|y\|_*\le 1\}}(y)$ where $\|\cdot\|_*$ is the dual norm.
-  \item \textbf{Other matrix norms.} The entrywise $\ell_1$ norm has dual the entrywise $\ell_\infty$ norm. By contrast, the nuclear (trace) norm $\|\cdot\|_*$(sum of singular values) is dual to the operator (spectral) norm $\|\cdot\|_{2\to2}$; its conjugate is the indicator of the spectral-norm unit ball:
-  \[
-  (\|\cdot\|_*)^*(Y)=\iota_{\{\|Y\|_{2\to2}\le 1\}}(Y).
-  \]
-  This is often used in low-rank matrix problems and is conceptually analogous.
-  \item \textbf{Proximal operator.} The proximal operator of $\lambda\|x\|_1$ (soft-thresholding) can be derived from Moreau decomposition which uses the conjugate. Moreau identity:
-  \[
-  \operatorname{prox}_{\lambda f}(v) + \lambda\,\operatorname{prox}_{f^*/\lambda}\big(v/\lambda\big) = v.
-  \]
-  For $f=\|\cdot\|_1$ the projection onto the $\ell_\infty$ unit ball appears in the decomposition.
-\end{itemize}
-
-\section{Short examples}
-\begin{enumerate}
-  \item $x=(2,-3)$, $y=(1,0.5)$: $\|y\|_\infty = 1 \le 1$, so $(\|\cdot\|_1)^*(y)=0$ and $\langle y,x\rangle - \|x\|_1 = (1)(2) + (0.5)(-3) - (2+3) = 2 -1.5 -5 = -4.5 \le 0$.
-  \item $y=(1.2,0)$: $\|y\|_\infty = 1.2>1$, hence $(\|\cdot\|_1)^*(y)=+\infty$ (supremum is unbounded).
-\end{enumerate}
-
-This infimum is separable. For each component $j$:
-\begin{itemize}
-    \item If $|v_j| > \lambda$, we can choose $\beta_j \to \mp\infty$ (opposite sign of $v_j$) to make the expression go to $-\infty$.
-    \item If $|v_j| \le \lambda$, the minimum is $0$, achieved at $\beta_j = 0$.
-\end{itemize}
-Thus, the infimum is $0$ if and only if $|v_j| \le \lambda$ for all $j$, and $-\infty$ otherwise. This condition is $\|v\|_\infty \le \lambda$, or:
-\[
-\|X^T \nu\|_\infty \le \lambda
-\]
-
-\textbf{Combining the results,} the dual function is:
-\[
-g(\nu) = \begin{cases}
-    -\frac{1}{2}\|\nu\|_2^2 - \nu^T y & \text{if } \|X^T \nu\|_\infty \le \lambda \\
-    -\infty & \text{if } \|X^T \nu\|_\infty > \lambda
-\end{cases}
-\]
-
 
 \end{document}
